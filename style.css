@@ -15,9 +15,9 @@
   --muted:#6b6f8e;
   --dim:#3a3d5c;
   --r:12px;
-  --font:'Outfit',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --display:'Rajdhani',sans-serif;
+  --font:'Sora',sans-serif;
+  --mono:'Fira Code',monospace;
+  --display:'Barlow Condensed',sans-serif;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
