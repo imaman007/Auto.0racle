@@ -1,8 +1,61 @@
 // ════════════════════════════════════════════
-//  CARVALUE — Pure JS Price Predictor
+//  AUTO ORACLE — Pure JS Price Predictor
 //  All data derived from car_details.csv
 //  (8,128 Indian used car transactions)
 // ════════════════════════════════════════════
+
+// ── Models per brand (from dataset) ─────────
+const BRAND_MODELS = {
+  "Maruti":        ["Swift","Swift Dzire","Wagon R","Alto","Baleno","Vitara Brezza","Ertiga","Celerio","Ignis","S-Cross","Ciaz","Omni","Ritz","Eeco","Zen","800","SX4","Gypsy"],
+  "Hyundai":       ["i20","i10","Creta","Verna","Santro","Grand i10","Tucson","Venue","Elantra","Xcent","EON","Accent","Getz","Sonata"],
+  "Toyota":        ["Fortuner","Innova","Innova Crysta","Corolla","Camry","Etios","Glanza","Yaris","Land Cruiser","Prado","Hilux","Qualis"],
+  "Honda":         ["City","Amaze","Jazz","WR-V","CR-V","HR-V","Civic","Accord","BR-V","Mobilio","Brio"],
+  "Mahindra":      ["Scorpio","XUV500","XUV300","Thar","Bolero","KUV100","Marazzo","Alturas","TUV300","Quanto","Xylo","Verito"],
+  "Tata":          ["Nexon","Harrier","Safari","Tiago","Tigor","Altroz","Hexa","Aria","Sumo","Indica","Indigo","Nano","Zest","Bolt"],
+  "Ford":          ["EcoSport","Endeavour","Figo","Aspire","Freestyle","Mustang","Fusion","Fiesta","Ikon","Classic"],
+  "Volkswagen":    ["Polo","Vento","Tiguan","Passat","Jetta","Ameo","CrossPolo"],
+  "Skoda":         ["Rapid","Octavia","Superb","Kodiaq","Karoq","Fabia","Yeti"],
+  "Renault":       ["Kwid","Duster","Triber","Captur","Lodgy","Scala","Fluence","Pulse"],
+  "BMW":           ["3 Series","5 Series","7 Series","X1","X3","X5","X6","X7","M3","M5","2 Series","6 Series"],
+  "Audi":          ["A4","A6","A8","Q3","Q5","Q7","Q8","A3","TT","R8","S5"],
+  "Mercedes-Benz": ["C-Class","E-Class","S-Class","GLA","GLC","GLE","GLS","A-Class","B-Class","CLA","AMG GT"],
+  "Jaguar":        ["XE","XF","XJ","F-Pace","E-Pace","I-Pace","F-Type"],
+  "Volvo":         ["XC40","XC60","XC90","S60","S90","V40","V60"],
+  "Chevrolet":     ["Beat","Spark","Cruze","Sail","Tavera","Aveo","Captiva","Optra"],
+  "Nissan":        ["Magnite","Kicks","Terrano","Micra","Sunny","GT-R","X-Trail"],
+  "Datsun":        ["GO","GO+","Redi-GO"],
+  "Fiat":          ["Punto","Linea","Avventura","Urban Cross","Abarth"],
+  "Jeep":          ["Compass","Wrangler","Grand Cherokee","Meridian"],
+  "Lexus":         ["ES","LS","NX","RX","LX","UX","GS"],
+  "Mitsubishi":    ["Outlander","Pajero","Montero","Cedia"],
+  "Isuzu":         ["D-Max","MU-X","MU-7"],
+};
+
+// ── Populate model datalist when brand changes ─
+function updateModelList() {
+  const brand = document.getElementById('brand').value.trim();
+  const dl = document.getElementById('model-list');
+  dl.innerHTML = '';
+
+  const key = Object.keys(BRAND_MODELS).find(
+    b => brand.toLowerCase().startsWith(b.toLowerCase()) || b.toLowerCase().startsWith(brand.toLowerCase())
+  );
+
+  if (key) {
+    BRAND_MODELS[key].forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m;
+      dl.appendChild(opt);
+    });
+  }
+}
+
+// Attach listener after DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+  const brandInput = document.getElementById('brand');
+  brandInput.addEventListener('input', updateModelList);
+  brandInput.addEventListener('change', updateModelList);
+});
 
 // ── Brand baseline prices (INR) ─────────────
 const BRAND_BASE = {
