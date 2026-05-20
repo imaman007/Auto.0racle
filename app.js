@@ -33,15 +33,16 @@ const BRAND_MODELS = {
 
 // ── Populate model select when brand changes ─
 function updateModelList() {
-  const brand = document.getElementById('brand').value.trim();
+  const brand = document.getElementById('brand').value.trim().toLowerCase();
   const sel = document.getElementById('model');
   sel.innerHTML = '';
 
-  const key = Object.keys(BRAND_MODELS).find(
-    b => brand.toLowerCase().startsWith(b.toLowerCase()) || b.toLowerCase().startsWith(brand.toLowerCase())
-  );
+  // Try exact match first, then starts-with
+  const key = Object.keys(BRAND_MODELS).find(b => b.toLowerCase() === brand)
+    || Object.keys(BRAND_MODELS).find(b => b.toLowerCase().startsWith(brand))
+    || Object.keys(BRAND_MODELS).find(b => brand.startsWith(b.toLowerCase()));
 
-  if (key && BRAND_MODELS[key]) {
+  if (key) {
     const placeholder = document.createElement('option');
     placeholder.value = '';
     placeholder.textContent = 'Select model';
@@ -56,7 +57,7 @@ function updateModelList() {
   } else {
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = brand ? 'Type brand to see models' : 'Select brand first';
+    placeholder.textContent = brand ? 'No models found for this brand' : 'Select brand first';
     sel.appendChild(placeholder);
   }
 }
@@ -66,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const brandInput = document.getElementById('brand');
   brandInput.addEventListener('input', updateModelList);
   brandInput.addEventListener('change', updateModelList);
+  // Also trigger on blur in case user types and clicks away
+  brandInput.addEventListener('blur', updateModelList);
 });
 
 // ── Brand baseline prices (INR) ─────────────
