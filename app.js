@@ -31,22 +31,33 @@ const BRAND_MODELS = {
   "Isuzu":         ["D-Max","MU-X","MU-7"],
 };
 
-// ── Populate model datalist when brand changes ─
+// ── Populate model select when brand changes ─
 function updateModelList() {
   const brand = document.getElementById('brand').value.trim();
-  const dl = document.getElementById('model-list');
-  dl.innerHTML = '';
+  const sel = document.getElementById('model');
+  sel.innerHTML = '';
 
   const key = Object.keys(BRAND_MODELS).find(
     b => brand.toLowerCase().startsWith(b.toLowerCase()) || b.toLowerCase().startsWith(brand.toLowerCase())
   );
 
-  if (key) {
+  if (key && BRAND_MODELS[key]) {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select model';
+    sel.appendChild(placeholder);
+
     BRAND_MODELS[key].forEach(m => {
       const opt = document.createElement('option');
       opt.value = m;
-      dl.appendChild(opt);
+      opt.textContent = m;
+      sel.appendChild(opt);
     });
+  } else {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = brand ? 'Type brand to see models' : 'Select brand first';
+    sel.appendChild(placeholder);
   }
 }
 
