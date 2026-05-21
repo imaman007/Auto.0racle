@@ -1,268 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Auto Oracle — Used Car Price Predictor India</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Sora:wght@300;400;500;600&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarValue - Indian Used Car Predictor</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="noise"></div>
-  <div class="bg-lines"></div>
+  <div class="container">
+    <header>
+      <h1>CarValue</h1>
+      <p>Pure JS Price Predictor for the Indian Market</p>
+    </header>
 
-  <!-- HERO HEADER -->
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="badge">🇮🇳 Indian Market · 8,000+ Real Listings</div>
-      <h1>AUTO<span>ORACLE</span></h1>
-      <p class="hero-sub">Instant used car price prediction — no signup, no API.</p>
-    </div>
-    <div class="hero-car">🚘</div>
-  </header>
-
-  <!-- MAIN APP -->
-  <main>
-    <div class="app-grid">
-
-      <!-- FORM PANEL -->
-      <div class="panel form-panel">
-        <div class="panel-label">01 · Enter Car Details</div>
-
-        <!-- Row 1: Brand + Model -->
-        <div class="field-row">
-          <div class="field">
-            <label>Car Brand</label>
-            <select id="brand" onchange="updateModelList()">
-              <option value="">Select brand</option>
-              <option>Maruti</option>
-              <option>Hyundai</option>
-              <option>Toyota</option>
-              <option>Honda</option>
-              <option>Mahindra</option>
-              <option>Tata</option>
-              <option>Ford</option>
-              <option>Volkswagen</option>
-              <option>Skoda</option>
-              <option>Renault</option>
-              <option>Chevrolet</option>
-              <option>Nissan</option>
-              <option>Datsun</option>
-              <option>Fiat</option>
-              <option>Jeep</option>
-              <option>BMW</option>
-              <option>Audi</option>
-              <option>Mercedes-Benz</option>
-              <option>Jaguar</option>
-              <option>Volvo</option>
-              <option>Lexus</option>
-              <option>Mitsubishi</option>
-              <option>Isuzu</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Car Model</label>
-            <select id="model">
-              <option value="">Select brand first</option>
-            </select>
-          </div>
+    <div id="state-idle" class="card form-section">
+      <div class="grid-form">
+        <div class="input-group">
+          <label for="brand">Brand (e.g. Maruti, Hyundai)</label>
+          <input type="text" id="brand" placeholder="Enter car brand..." autocomplete="off">
         </div>
 
-        <!-- Row 2: Year + KM -->
-        <div class="field-row">
-          <div class="field">
-            <label>Year of Manufacture</label>
-            <input id="year" type="number" min="1990" max="2025" placeholder="e.g. 2018"/>
-          </div>
-          <div class="field">
-            <label>Kilometers Driven</label>
-            <input id="km" type="number" min="0" placeholder="e.g. 55000"/>
-          </div>
+        <div class="input-group">
+          <label for="year">Manufacturing Year</label>
+          <input type="number" id="year" placeholder="e.g. 2018" min="1990" max="2026">
         </div>
 
-        <!-- Row 3: Fuel + Transmission -->
-        <div class="field-row">
-          <div class="field">
-            <label>Fuel Type</label>
-            <select id="fuel">
-              <option value="">Select fuel</option>
-              <option value="Petrol">Petrol</option>
-              <option value="Diesel">Diesel</option>
-              <option value="CNG">CNG</option>
-              <option value="LPG">LPG</option>
-              <option value="Electric">Electric</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Transmission</label>
-            <select id="trans">
-              <option value="">Select type</option>
-              <option value="Manual">Manual</option>
-              <option value="Automatic">Automatic</option>
-            </select>
-          </div>
+        <div class="input-group">
+          <label for="km">Kilometers Driven</label>
+          <input type="number" id="km" placeholder="e.g. 45000">
         </div>
 
-        <!-- Row 4: Owner + Seller -->
-        <div class="field-row">
-          <div class="field">
-            <label>Ownership</label>
-            <select id="owner">
-              <option value="">Select owner</option>
-              <option value="First Owner">First Owner</option>
-              <option value="Second Owner">Second Owner</option>
-              <option value="Third Owner">Third Owner</option>
-              <option value="Fourth & Above Owner">Fourth &amp; Above</option>
-              <option value="Test Drive Car">Test Drive Car</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Seller Type</label>
-            <select id="seller">
-              <option value="">Select seller</option>
-              <option value="Individual">Individual</option>
-              <option value="Dealer">Dealer</option>
-              <option value="Trustmark Dealer">Trustmark Dealer</option>
-            </select>
-          </div>
+        <div class="input-group">
+          <label for="engine">Engine CC</label>
+          <input type="number" id="engine" placeholder="e.g. 1197">
         </div>
 
-        <!-- Row 5: Engine + Seats -->
-        <div class="field-row">
-          <div class="field">
-            <label>Engine (CC)</label>
-            <input id="engine" type="number" min="500" max="6000" placeholder="e.g. 1248"/>
-          </div>
-          <div class="field">
-            <label>Seats</label>
-            <select id="seats">
-              <option value="">Select seats</option>
-              <option value="2">2</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-            </select>
-          </div>
+        <div class="input-group">
+          <label for="fuel">Fuel Type</label>
+          <select id="fuel">
+            <option value="" disabled selected>Select Fuel</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="CNG">CNG</option>
+            <option value="LPG">LPG</option>
+            <option value="Electric">Electric</option>
+          </select>
         </div>
 
-        <!-- Row 6: Mileage + Max Power -->
-        <div class="field-row">
-          <div class="field">
-            <label>Mileage (kmpl)</label>
-            <input id="mileage" type="number" min="1" max="50" step="0.1" placeholder="e.g. 19.7"/>
-          </div>
-          <div class="field">
-            <label>Max Power (bhp)</label>
-            <input id="maxpower" type="number" min="30" max="600" placeholder="e.g. 74"/>
-          </div>
+        <div class="input-group">
+          <label for="trans">Transmission</label>
+          <select id="trans">
+            <option value="" disabled selected>Select Trans</option>
+            <option value="Manual">Manual</option>
+            <option value="Automatic">Automatic</option>
+          </select>
         </div>
 
-        <button class="predict-btn" onclick="predict()">
-          <span>Calculate Price</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <div class="input-group">
+          <label for="owner">Ownership</label>
+          <select id="owner">
+            <option value="" disabled selected>Select Owner</option>
+            <option value="First Owner">First Owner</option>
+            <option value="Second Owner">Second Owner</option>
+            <option value="Third Owner">Third Owner</option>
+            <option value="Fourth & Above Owner">Fourth & Above Owner</option>
+            <option value="Test Drive Car">Test Drive Car</option>
+          </select>
+        </div>
 
-        <p class="form-note">* Based on 8,128 real Indian used car transactions. Results are estimates.</p>
+        <div class="input-group">
+          <label for="seller">Seller Type</label>
+          <select id="seller">
+            <option value="" disabled selected>Select Seller</option>
+            <option value="Individual">Individual</option>
+            <option value="Dealer">Dealer</option>
+            <option value="Trustmark Dealer">Trustmark Dealer</option>
+          </select>
+        </div>
       </div>
 
-      <!-- RESULT PANEL -->
-      <div class="panel result-panel">
-
-        <!-- Idle -->
-        <div class="result-state" id="state-idle">
-          <div class="idle-graphic">
-            <div class="idle-ring"></div>
-            <div class="idle-ring r2"></div>
-            <div class="idle-icon">🚗</div>
-          </div>
-          <h3>Ready to Predict</h3>
-          <p>Fill in your car details and hit <strong>Calculate Price</strong> to get an instant estimate based on real Indian market data.</p>
-          <div class="stat-pills">
-            <div class="pill">8,128 listings</div>
-            <div class="pill">23 brands</div>
-            <div class="pill">No signup</div>
-          </div>
-        </div>
-
-        <!-- Result -->
-        <div class="result-state" id="state-result" style="display:none">
-          <div class="result-header">
-            <div class="result-label-top">Estimated Selling Price</div>
-            <div class="result-price" id="out-price">—</div>
-            <div class="result-range" id="out-range"></div>
-          </div>
-
-          <div class="result-bars">
-            <div class="bar-row">
-              <span class="bar-label">Market Low</span>
-              <div class="bar-track"><div class="bar-fill low" id="bar-low"></div></div>
-              <span class="bar-val" id="val-low"></span>
-            </div>
-            <div class="bar-row highlight">
-              <span class="bar-label">Your Car</span>
-              <div class="bar-track"><div class="bar-fill mid" id="bar-mid"></div></div>
-              <span class="bar-val" id="val-mid"></span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Market High</span>
-              <div class="bar-track"><div class="bar-fill high" id="bar-high"></div></div>
-              <span class="bar-val" id="val-high"></span>
-            </div>
-          </div>
-
-          <div class="factors-title">Price Factors</div>
-          <div class="factors-list" id="factors-list"></div>
-
-          <div class="result-footer">
-            <span id="out-brand-avg"></span>
-            <button class="reset-btn" onclick="resetForm()">New Prediction</button>
-          </div>
-        </div>
-
-        <!-- Error -->
-        <div class="result-state" id="state-error" style="display:none">
-          <div class="err-icon">⚠️</div>
-          <h3>Missing Details</h3>
-          <p id="err-msg">Please fill in all required fields.</p>
-          <button class="reset-btn" onclick="showState('idle')">Try Again</button>
-        </div>
-
-      </div>
+      <button onclick="predict()" class="btn-primary">Calculate Value</button>
     </div>
 
-    <!-- HOW IT WORKS -->
-    <section class="how-section">
-      <div class="how-title">How the Prediction Works</div>
-      <div class="how-grid">
-        <div class="how-card">
-          <div class="how-num">01</div>
-          <div class="how-text"><strong>Brand Baseline</strong>Each brand has an average price from real listings (e.g. Maruti avg ₹4.03L, BMW avg ₹41L)</div>
-        </div>
-        <div class="how-card">
-          <div class="how-num">02</div>
-          <div class="how-text"><strong>Age Decay</strong>Price drops ~8–12% per year based on actual depreciation curves from the dataset</div>
-        </div>
-        <div class="how-card">
-          <div class="how-num">03</div>
-          <div class="how-text"><strong>Km &amp; Condition</strong>Higher mileage reduces value. Ownership history, fuel type &amp; transmission are factored in</div>
-        </div>
-        <div class="how-card">
-          <div class="how-num">04</div>
-          <div class="how-text"><strong>Market Factors</strong>Diesel &amp; Automatic premiums, seller type adjustments — all derived from 8,128 real transactions</div>
+    <div id="state-error" class="card hidden">
+      <h3 class="error-text">Incomplete Details</h3>
+      <p id="err-msg"></p>
+      <button onclick="reset()" class="btn-secondary">Go Back</button>
+    </div>
+
+    <div id="state-result" class="card hidden">
+      <div class="price-hero">
+        <h2>Estimated Fair Value</h2>
+        <div id="out-price" class="huge-price">₹ 0</div>
+        <div id="out-range" class="subtitle-range">Range: ₹ 0 - ₹ 0</div>
+      </div>
+
+      <div class="bar-container">
+        <div class="bar-bg" id="bar-high"></div>
+        <div class="bar-bg fill-mid" id="bar-mid"></div>
+        <div class="bar-bg fill-low" id="bar-low"></div>
+        <div class="bar-labels">
+          <span id="val-low">Low</span>
+          <span id="val-mid">Mid</span>
+          <span id="val-high">High</span>
         </div>
       </div>
-    </section>
-  </main>
 
-  <footer>
-    <p>Auto Oracle · Built for GitHub Pages · Data: Indian Used Car Market (8,128 listings) · No data is collected or stored</p>
-  </footer>
+      <div class="factors-section">
+        <h3>Valuation Breakdown</h3>
+        <div id="factors-list"></div>
+      </div>
+
+      <p id="out-brand-avg" class="brand-avg-text"></p>
+      
+      <button onclick="reset()" class="btn-secondary">Calculate Another</button>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
