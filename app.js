@@ -1,110 +1,111 @@
 // ════════════════════════════════════════════
 //  CARVALUE — Pure JS Price Predictor
-//  Adjusted for 2026 Indian Market Norms
+//  All data derived from car_details.csv
+//  (8,128 Indian used car transactions)
 // ════════════════════════════════════════════
 
 // ── Brand baseline prices (INR) ─────────────
-// Updated for post-2024 general inflation baselines
 const BRAND_BASE = {
-  "Maruti":        425000,
-  "Hyundai":       480000,
-  "Toyota":        1050000, // Very strong resale
-  "Honda":         610000,
-  "Mahindra":      680000,  // SUV demand surge
-  "Tata":          420000,  // Improved brand perception
-  "Ford":          450000,  // Depreciated slightly due to exit, but enthusiasts hold up price
-  "Renault":       450000,
-  "Volkswagen":    520000,
-  "Skoda":         610000,
-  "Chevrolet":     220000,  // Heavy penalty for exit
-  "Nissan":        465000,
-  "Datsun":        280000,
-  "Fiat":          250000,
-  "Jeep":         2050000,
-  "BMW":          4100000,
-  "Audi":         2600000,
-  "Mercedes-Benz":2600000,
-  "Jaguar":       2900000,
-  "Volvo":        3200000,
-  "Lexus":        5200000,
-  "Mitsubishi":    750000,
-  "Isuzu":        1900000,
-  "Land":         3800000,
-  "Force":         880000,
+  "Maruti":        403075,
+  "Hyundai":       458554,
+  "Toyota":        959946,
+  "Honda":         596178,
+  "Mahindra":      623224,
+  "Tata":          357433,
+  "Ford":          516682,
+  "Renault":       462618,
+  "Volkswagen":    498817,
+  "Skoda":         607723,
+  "Chevrolet":     273867,
+  "Nissan":        465407,
+  "Datsun":        314599,
+  "Fiat":          296063,
+  "Jeep":         2149612,
+  "BMW":          4109916,
+  "Audi":         2612199,
+  "Mercedes-Benz":2470444,
+  "Jaguar":       2915464,
+  "Volvo":        3272014,
+  "Lexus":        5150000,
+  "Mitsubishi":    817500,
+  "Isuzu":        1942000,
+  "Land":         3608333,
+  "Force":         887500,
 };
 const BRAND_DEFAULT = 500000;
 
 // ── Age depreciation multipliers ────────────
-// Smoothed curve for Indian market. Steeper drop for 10-15 years.
+// Index = age in years (0=new, derived from dataset)
 const AGE_DECAY = {
-   0: 1.00,  1: 0.88,  2: 0.79,  3: 0.72,
-   4: 0.65,  5: 0.59,  6: 0.54,  7: 0.49,
-   8: 0.44,  9: 0.39, 10: 0.34, 11: 0.28,
-  12: 0.23, 13: 0.18, 14: 0.14, 15: 0.10,
-  16: 0.08, 17: 0.06, 18: 0.05, 19: 0.04,
-  20: 0.03,
+   0: 1.00,  1: 0.90,  2: 0.79,  3: 0.74,
+   4: 0.66,  5: 0.68,  6: 0.72,  7: 0.66,
+   8: 0.52,  9: 0.45, 10: 0.39, 11: 0.35,
+  12: 0.27, 13: 0.25, 14: 0.21, 15: 0.17,
+  16: 0.16, 17: 0.14, 18: 0.13, 19: 0.11,
+  20: 0.09,
 };
 
 // ── Km driven penalty (multiplier) ──────────
 function kmMultiplier(km) {
-  if (km <=  10000) return 0.96;
-  if (km <=  20000) return 0.91;
-  if (km <=  30000) return 0.87;
-  if (km <=  40000) return 0.83;
-  if (km <=  50000) return 0.79;
-  if (km <=  60000) return 0.75;
-  if (km <=  70000) return 0.71;
-  if (km <=  80000) return 0.66;
-  if (km <=  90000) return 0.62;
+  // Derived from dataset km buckets
+  if (km <=  10000) return 0.90;
+  if (km <=  20000) return 0.88;
+  if (km <=  30000) return 0.85;
+  if (km <=  40000) return 0.82;
+  if (km <=  50000) return 0.78;
+  if (km <=  60000) return 0.74;
+  if (km <=  70000) return 0.70;
+  if (km <=  80000) return 0.65;
+  if (km <=  90000) return 0.61;
   if (km <= 100000) return 0.57;
-  if (km <= 120000) return 0.50;
-  if (km <= 150000) return 0.44;
-  if (km <= 180000) return 0.37;
-  return 0.30;
+  if (km <= 120000) return 0.52;
+  if (km <= 150000) return 0.47;
+  if (km <= 180000) return 0.42;
+  return 0.37;
 }
 
 // ── Fuel type multiplier (vs Petrol baseline) ─
 const FUEL_MULT = {
   "Petrol":   1.00,
-  "Diesel":   1.06,   // Reduced diesel premium due to strict 10-year regulations
-  "CNG":      1.04,   // Consistent high demand for running costs
-  "LPG":      0.70,   // Almost entirely obsolete
-  "Electric": 0.82,   // Slower secondary market, battery health concerns
+  "Diesel":   1.12,   // diesel commands premium in India
+  "CNG":      0.82,
+  "LPG":      0.72,
+  "Electric": 1.20,
 };
 
 // ── Transmission multiplier ──────────────────
 const TRANS_MULT = {
   "Manual":    1.00,
-  "Automatic": 1.14,  // 14% premium, growing preference for automatics in cities
+  "Automatic": 1.22,  // automatic premium ~22%
 };
 
 // ── Ownership factor ─────────────────────────
 const OWNER_MULT = {
   "First Owner":           1.00,
-  "Second Owner":          0.83,
-  "Third Owner":           0.68,
-  "Fourth & Above Owner":  0.50,
-  "Test Drive Car":        1.05, // Slight premium over standard used, usually lower KMs
+  "Second Owner":          0.80,
+  "Third Owner":           0.65,
+  "Fourth & Above Owner":  0.52,
+  "Test Drive Car":        1.15,
 };
 
 // ── Seller type adjustment ───────────────────
 const SELLER_ADJ = {
-  "Individual":        0.00,  // Baseline
-  "Dealer":            0.08,  // standard dealer markup
-  "Trustmark Dealer":  0.15,  // organized retail premium (warranties/certifications)
+  "Individual":       -0.03,  // slight discount
+  "Dealer":            0.05,  // dealer premium
+  "Trustmark Dealer":  0.08,  // highest trust premium
 };
 
 // ── Engine CC adjustment ─────────────────────
 function engineAdj(cc) {
   if (!cc || isNaN(cc)) return 0;
-  if (cc < 800)  return -0.10;
-  if (cc <= 1000) return -0.05;
-  if (cc <= 1200) return  0.00;
-  if (cc <= 1500) return  0.05;
-  if (cc <= 2000) return  0.10;
-  if (cc <= 2500) return  0.18;
-  if (cc <= 3000) return  0.25;
-  return 0.32;
+  if (cc < 800)  return -0.08;
+  if (cc < 1000) return -0.04;
+  if (cc < 1200) return  0.00;
+  if (cc < 1500) return  0.04;
+  if (cc < 2000) return  0.10;
+  if (cc < 2500) return  0.18;
+  if (cc < 3000) return  0.26;
+  return 0.35;
 }
 
 // ════════════════════════════════════════════
@@ -121,9 +122,9 @@ function calcPrice(inputs) {
   const brandFound = !!brandKey;
 
   // 2. Age factor
-  const currentYear = new Date().getFullYear(); // Evaluates to 2026 based on context
+  const currentYear = new Date().getFullYear();
   const age = Math.max(0, Math.min(currentYear - year, 20));
-  const ageMult = AGE_DECAY[age] ?? 0.03;
+  const ageMult = AGE_DECAY[age] ?? 0.08;
 
   // 3. KM factor
   const kmMult = kmMultiplier(km);
@@ -153,9 +154,8 @@ function calcPrice(inputs) {
     * (1 + sellerAdj)
     * (1 + engAdj);
 
-  // Create range
-  const low  = Math.round(price * 0.86);
-  const high = Math.round(price * 1.16);
+  const low  = Math.round(price * 0.82);
+  const high = Math.round(price * 1.22);
   const mid  = Math.round(price);
 
   // Build factor breakdown
@@ -163,33 +163,33 @@ function calcPrice(inputs) {
 
   factors.push({
     name: "Brand",
-    val: brandFound ? `₹${fmt(base)} base` : "Generic est.",
+    val: brandFound ? `₹${fmt(base)} avg` : "Generic estimate",
     tag: brandFound ? "neu" : "down",
     label: brandFound ? "KNOWN" : "UNKNOWN"
   });
 
-  const ageImpact = ageMult >= 0.70 ? "up" : ageMult >= 0.34 ? "neu" : "down";
+  const ageImpact = ageMult >= 0.75 ? "up" : ageMult >= 0.45 ? "neu" : "down";
   factors.push({
     name: `Age (${age} yr${age !== 1 ? 's' : ''})`,
     val: `${Math.round(ageMult * 100)}% of base`,
     tag: ageImpact,
-    label: ageMult >= 0.70 ? "RECENT" : ageMult >= 0.34 ? "MODERATE" : "OLD"
+    label: ageMult >= 0.75 ? "RECENT" : ageMult >= 0.45 ? "MODERATE" : "OLD"
   });
 
-  const kmImpact = km <= 40000 ? "up" : km <= 80000 ? "neu" : "down";
+  const kmImpact = km <= 40000 ? "up" : km <= 100000 ? "neu" : "down";
   factors.push({
     name: `Km (${km.toLocaleString('en-IN')})`,
     val: `${Math.round(kmMult * 100)}% of base`,
     tag: kmImpact,
-    label: km <= 40000 ? "LOW" : km <= 80000 ? "AVERAGE" : "HIGH"
+    label: km <= 40000 ? "LOW" : km <= 100000 ? "AVERAGE" : "HIGH"
   });
 
   if (fuel) {
     factors.push({
       name: `Fuel: ${fuel}`,
       val: fuelMult > 1 ? `+${Math.round((fuelMult-1)*100)}%` : fuelMult < 1 ? `-${Math.round((1-fuelMult)*100)}%` : "Baseline",
-      tag: fuelMult >= 1.04 ? "up" : fuelMult < 0.96 ? "down" : "neu",
-      label: fuelMult >= 1.04 ? "PREMIUM" : fuelMult < 0.96 ? "DISCOUNT" : "NEUTRAL"
+      tag: fuelMult >= 1.1 ? "up" : fuelMult < 0.9 ? "down" : "neu",
+      label: fuelMult >= 1.1 ? "PREMIUM" : fuelMult < 0.9 ? "DISCOUNT" : "NEUTRAL"
     });
   }
 
@@ -206,8 +206,8 @@ function calcPrice(inputs) {
     factors.push({
       name: `Owner: ${owner}`,
       val: ownerMult < 1 ? `-${Math.round((1-ownerMult)*100)}%` : ownerMult > 1 ? `+${Math.round((ownerMult-1)*100)}%` : "Baseline",
-      tag: ownerMult >= 1.0 ? "up" : ownerMult >= 0.8 ? "neu" : "down",
-      label: ownerMult >= 1.0 ? "FIRST" : ownerMult >= 0.8 ? "2ND" : "3RD+"
+      tag: ownerMult >= 0.9 ? "up" : ownerMult >= 0.7 ? "neu" : "down",
+      label: ownerMult >= 0.9 ? "FIRST" : ownerMult >= 0.7 ? "2ND" : "3RD+"
     });
   }
 
@@ -231,7 +231,7 @@ function fmtFull(n) {
 function showState(name) {
   ['idle','result','error'].forEach(s => {
     const el = document.getElementById('state-' + s);
-    if (el) el.style.display = (s === name) ? 'block' : 'none';
+    if (el) el.style.display = (s === name) ? 'flex' : 'none';
   });
 }
 
@@ -240,15 +240,6 @@ function getVal(id) {
 }
 
 function reset() {
-  // Clear inputs and return to form
-  document.getElementById('brand').value = '';
-  document.getElementById('year').value = '';
-  document.getElementById('km').value = '';
-  document.getElementById('fuel').value = '';
-  document.getElementById('trans').value = '';
-  document.getElementById('owner').value = '';
-  document.getElementById('seller').value = '';
-  document.getElementById('engine').value = '';
   showState('idle');
 }
 
@@ -284,10 +275,9 @@ function predict() {
   const year   = parseInt(yearStr);
   const km     = parseInt(kmStr);
   const engine = parseInt(engStr) || null;
-  const currentYear = new Date().getFullYear();
 
-  if (year < 1990 || year > currentYear) {
-    document.getElementById('err-msg').textContent = 'Please enter a valid year between 1990 and ' + currentYear;
+  if (year < 1990 || year > new Date().getFullYear()) {
+    document.getElementById('err-msg').textContent = 'Please enter a valid year between 1990 and ' + new Date().getFullYear();
     showState('error');
     return;
   }
@@ -323,7 +313,7 @@ function predict() {
   // Brand avg
   if (result.base) {
     document.getElementById('out-brand-avg').textContent =
-      `*Baseline calculation anchored to standard ${result.brandKey} models.`;
+      `${result.brandKey} market avg: ${fmtFull(result.base)}`;
   } else {
     document.getElementById('out-brand-avg').textContent = '';
   }
@@ -333,10 +323,5 @@ function predict() {
 
 // ── Allow Enter key in inputs ───────────────
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    // Only predict if we are on the idle screen
-    if (document.getElementById('state-idle').style.display !== 'none') {
-      predict();
-    }
-  }
+  if (e.key === 'Enter') predict();
 });
