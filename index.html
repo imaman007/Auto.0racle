@@ -19,7 +19,7 @@
     <div class="hero-inner">
       <div class="badge">🇮🇳 Indian Market · 8,000+ Real Listings</div>
       <h1>AUTO<span>ORACLE</span></h1>
-      <p class="hero-sub">Instant used car price prediction — no signup needed!</p>
+      <p class="hero-sub">Instant used car price prediction — no signup, no API, fully offline.</p>
     </div>
     <div class="hero-car">🚘</div>
   </header>
@@ -30,21 +30,38 @@
 
       <!-- FORM PANEL -->
       <div class="panel form-panel">
-        <div class="panel-label">01 · Enter Details</div>
+        <div class="panel-label">01 · Enter Car Details</div>
 
+        <!-- Row 1: Brand + Model -->
         <div class="field-row">
           <div class="field">
             <label>Car Brand</label>
-            <input id="brand" type="text" placeholder="e.g. Toyota, Maruti, BMW" list="brand-list"/>
-            <datalist id="brand-list">
-              <option>Maruti</option><option>Hyundai</option><option>Toyota</option>
-              <option>Honda</option><option>Mahindra</option><option>Tata</option>
-              <option>Ford</option><option>Volkswagen</option><option>Skoda</option>
-              <option>Renault</option><option>BMW</option><option>Audi</option>
-              <option>Mercedes-Benz</option><option>Jaguar</option><option>Volvo</option>
-              <option>Chevrolet</option><option>Nissan</option><option>Datsun</option>
-              <option>Fiat</option><option>Jeep</option><option>Lexus</option>
-            </datalist>
+            <select id="brand" onchange="updateModelList()">
+              <option value="">Select brand</option>
+              <option>Maruti</option>
+              <option>Hyundai</option>
+              <option>Toyota</option>
+              <option>Honda</option>
+              <option>Mahindra</option>
+              <option>Tata</option>
+              <option>Ford</option>
+              <option>Volkswagen</option>
+              <option>Skoda</option>
+              <option>Renault</option>
+              <option>Chevrolet</option>
+              <option>Nissan</option>
+              <option>Datsun</option>
+              <option>Fiat</option>
+              <option>Jeep</option>
+              <option>BMW</option>
+              <option>Audi</option>
+              <option>Mercedes-Benz</option>
+              <option>Jaguar</option>
+              <option>Volvo</option>
+              <option>Lexus</option>
+              <option>Mitsubishi</option>
+              <option>Isuzu</option>
+            </select>
           </div>
           <div class="field">
             <label>Car Model</label>
@@ -54,10 +71,11 @@
           </div>
         </div>
 
+        <!-- Row 2: Year + KM -->
         <div class="field-row">
           <div class="field">
             <label>Year of Manufacture</label>
-            <input id="year" type="number" min="1995" max="2025" placeholder="e.g. 2018"/>
+            <input id="year" type="number" min="1990" max="2025" placeholder="e.g. 2018"/>
           </div>
           <div class="field">
             <label>Kilometers Driven</label>
@@ -65,6 +83,7 @@
           </div>
         </div>
 
+        <!-- Row 3: Fuel + Transmission -->
         <div class="field-row">
           <div class="field">
             <label>Fuel Type</label>
@@ -87,6 +106,7 @@
           </div>
         </div>
 
+        <!-- Row 4: Owner + Seller -->
         <div class="field-row">
           <div class="field">
             <label>Ownership</label>
@@ -110,6 +130,7 @@
           </div>
         </div>
 
+        <!-- Row 5: Engine + Seats -->
         <div class="field-row">
           <div class="field">
             <label>Engine (CC)</label>
@@ -117,7 +138,28 @@
           </div>
           <div class="field">
             <label>Seats</label>
-            <input id="seats" type="number" min="2" max="10" placeholder="e.g. 5"/>
+            <select id="seats">
+              <option value="">Select seats</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 6: Mileage + Max Power -->
+        <div class="field-row">
+          <div class="field">
+            <label>Mileage (kmpl)</label>
+            <input id="mileage" type="number" min="1" max="50" step="0.1" placeholder="e.g. 19.7"/>
+          </div>
+          <div class="field">
+            <label>Max Power (bhp)</label>
+            <input id="maxpower" type="number" min="30" max="600" placeholder="e.g. 74"/>
           </div>
         </div>
 
@@ -130,7 +172,7 @@
       </div>
 
       <!-- RESULT PANEL -->
-      <div class="panel result-panel" id="result-panel">
+      <div class="panel result-panel">
 
         <!-- Idle -->
         <div class="result-state" id="state-idle">
@@ -140,10 +182,10 @@
             <div class="idle-icon">🚗</div>
           </div>
           <h3>Ready to Predict</h3>
-          <p>Fill in your car details on the left and hit <strong>Calculate Price</strong> to get an instant estimate based on real Indian market data.</p>
+          <p>Fill in your car details and hit <strong>Calculate Price</strong> to get an instant estimate based on real Indian market data.</p>
           <div class="stat-pills">
             <div class="pill">8,128 listings</div>
-            <div class="pill">25+ brands</div>
+            <div class="pill">23 brands</div>
             <div class="pill">No signup</div>
           </div>
         </div>
@@ -179,7 +221,7 @@
 
           <div class="result-footer">
             <span id="out-brand-avg"></span>
-            <button class="reset-btn" onclick="reset()">New Prediction</button>
+            <button class="reset-btn" onclick="resetForm()">New Prediction</button>
           </div>
         </div>
 
@@ -200,19 +242,19 @@
       <div class="how-grid">
         <div class="how-card">
           <div class="how-num">01</div>
-          <div class="how-text"><strong>Brand Baseline</strong><br>Each brand has an average price from real listings (e.g. Maruti avg ₹4.03L, BMW avg ₹41L)</div>
+          <div class="how-text"><strong>Brand Baseline</strong>Each brand has an average price from real listings (e.g. Maruti avg ₹4.03L, BMW avg ₹41L)</div>
         </div>
         <div class="how-card">
           <div class="how-num">02</div>
-          <div class="how-text"><strong>Age Decay</strong><br>Price drops ~8–12% per year based on actual depreciation curves from the dataset</div>
+          <div class="how-text"><strong>Age Decay</strong>Price drops ~8–12% per year based on actual depreciation curves from the dataset</div>
         </div>
         <div class="how-card">
           <div class="how-num">03</div>
-          <div class="how-text"><strong>Km & Condition</strong><br>Higher mileage reduces value. Ownership history, fuel type & transmission are factored in</div>
+          <div class="how-text"><strong>Km &amp; Condition</strong>Higher mileage reduces value. Ownership history, fuel type &amp; transmission are factored in</div>
         </div>
         <div class="how-card">
           <div class="how-num">04</div>
-          <div class="how-text"><strong>Market Factors</strong><br>Diesel & Automatic premiums, seller type adjustments, all derived from 8,128 transactions</div>
+          <div class="how-text"><strong>Market Factors</strong>Diesel &amp; Automatic premiums, seller type adjustments — all derived from 8,128 real transactions</div>
         </div>
       </div>
     </section>
